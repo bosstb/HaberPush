@@ -100,14 +100,16 @@ def time():
 
 @app.route('/wechatapi')
 def wechat():
-    if request.method == "POST":
-        #请求内容类型判断
-        args = request.form
-        signature = args.get('signature')
-        timestamp = args.get('timestamp')
-        nonce = args.get('nonce')
-        echostr = args.get('echostr')
+    #请求内容类型判断
+    args = request.form
+    signature = args.get('signature')
+    timestamp = args.get('timestamp')
+    nonce = args.get('nonce')
+    echostr = args.get('echostr')
+    if echostr != None:
         return echostr
+    else:
+        return 'None'
 
 
 @sockets.route('/echo')
