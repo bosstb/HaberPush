@@ -17,8 +17,6 @@ import requests
 #leancloud.init("96Q4GMOz0VpK4JwfeUjEHNWC-MdYXbMMI", "aCAfwt702pPeubx6tnngUWiu")
 
 
-clickList = {}
-clickListIsInit = False
 app = Flask(__name__)
 sockets = Sockets(app)
 # 动态路由
@@ -29,38 +27,23 @@ class AndroidId(leancloud.Object):
     pass
 
 
-class AndroidIdRepeat(leancloud.Object):
-    pass
-
-
-class PostTest(leancloud.Object):
-    pass
-
-
-class CloudControl(leancloud.Object):
-    pass
-
-
-class ClickRecord(leancloud.Object):
-    pass
-
-
-class AffiliateSetting(leancloud.Object):
-    pass
-
-
 @app.route('/', methods=["GET", "POST"])
 def index():
     #POST方法判断
     if request.method == "POST":
         #请求内容类型判断
-        print request.get_data()
-        if request.content_type == "text/plain;charset=UTF-8":
+        req = request
+        print '111'
+        if request.content_type == "application/json; charset=utf-8":
             args = json.loads(request.get_data())
         else:
             args = request.form
-        sourceId = args.get('sourceId')
-        title =  args.get('title')
+        #content_json = json.loads(args.get('json'))
+        content_json = json.loads('[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
+        for item in content_json:
+            print item
+            sourceId = args.get('sourceId')
+            title = args.get('title')
 
 
         # if user_androidId != None:
@@ -101,18 +84,31 @@ def index():
         return "OK"
     else:
         return "不支持Get"
-def clickListInit():
-    query = leancloud.Query(ClickRecord)
-    query.greater_than('time', datetime.today()-timedelta(seconds=3600))
-    query_list = query.find()
-    for item in query_list:
-        clickList[item.get('ipua')] = dict(item.get('clickInfo'))
-    clickListIsInit = True
-
+def PushTest():
+    content_json = json.loads(
+        '[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
+    for item in content_json:
+        print item
+        sourceId = item.get('id')
+        title = item.get('title')
+        print sourceId+title
+PushTest()
 
 @app.route('/time')
 def time():
     return str(datetime.now())
+
+@app.route('/wechatapi')
+def wechat(ws):
+    if request.method == "POST":
+        #请求内容类型判断
+        args = request.form
+        signature = args.get('signature')
+        timestamp = args.get('timestamp')
+        nonce = args.get('nonce')
+        print signature + timestamp + nonce
+        echostr = args.get('echostr')
+        return echostr
 
 
 @sockets.route('/echo')
