@@ -107,8 +107,10 @@ def wechat():
     nonce = args.get('nonce')
     echostr = args.get('echostr')
     if echostr != None:
+        print echostr
         return echostr
     else:
+        print 'None'
         return 'None'
 
 
