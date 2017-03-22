@@ -92,7 +92,7 @@ def PushTest():
         sourceId = item.get('id')
         title = item.get('title')
         print sourceId+title
-PushTest()
+
 
 @app.route('/time')
 def time():
