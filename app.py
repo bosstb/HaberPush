@@ -106,7 +106,6 @@ def wechat(ws):
         signature = args.get('signature')
         timestamp = args.get('timestamp')
         nonce = args.get('nonce')
-        print signature + timestamp + nonce
         echostr = args.get('echostr')
         return echostr
 
