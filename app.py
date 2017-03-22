@@ -99,7 +99,7 @@ def time():
     return str(datetime.now())
 
 @app.route('/wechatapi')
-def wechat(ws):
+def wechat():
     if request.method == "POST":
         #请求内容类型判断
         args = request.form
