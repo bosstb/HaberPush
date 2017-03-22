@@ -101,7 +101,7 @@ def time():
 @app.route('/wechatapi')
 def wechat():
     #请求内容类型判断
-    args = request.form
+    args = request.args
     signature = args.get('signature')
     timestamp = args.get('timestamp')
     nonce = args.get('nonce')
