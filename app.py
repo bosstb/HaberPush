@@ -16,7 +16,7 @@ import requests
 import xml.dom.minidom
 import datetime
 import time
-
+import base64
 #leancloud.init("96Q4GMOz0VpK4JwfeUjEHNWC-MdYXbMMI", "aCAfwt702pPeubx6tnngUWiu")
 
 
@@ -132,9 +132,21 @@ def wechat():
         MsgType = doc.getElementsByTagName("MsgType")[0].firstChild.data
         Content = doc.getElementsByTagName("Content")[0].firstChild.data
         MsgId = doc.getElementsByTagName("MsgId")[0].firstChild.data
+        #r = requests.get('192.168.10.101:8801/v1/custompush/news')
+        content_json = json.loads(
+            '[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
+        pushInfo = ''
+        for item in content_json:
+            print item
+            sourceId = item.get('id')
+            title = item.get('title')
+            pushInfo = pushInfo + '\n' + '<a href = "https://compaign.newsgrapeapp.com/news/' + sourceId + '">' + title + '</a>' + '&nbsp;&nbsp;&nbsp;' + \
+            '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '">Push</a>'
+            print sourceId + title
+
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
-        '<Content><![CDATA[' + 'fuckyou man' + ']]></Content></xml>'
+        '<Content><![CDATA[' + pushInfo + ']]></Content></xml>'
         if Content == 'Push':
             return replyStr
         else:
@@ -144,6 +156,21 @@ def wechat():
 def getAccessToken():
     r = requests.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appId + 'secret=' + appSecret)
     return r.text
+
+
+@app.route('/<sourceId>', methods=['POST', 'GET'])
+def videoDetail(sourceId):
+    title = request.args.__getattribute__('title')
+    if request.method == 'GET':
+        mkdir_str = '{"platform":"all","audience":"all","notification":{"alert":' + sourceId + ',' \
+                    '"android":{},"ios":{"extras":{ \
+                "newsid":' + title + '}}}}'
+        mkdir_url = "https://api.jpush.cn/v3/push"
+        user = base64.encodestring("789dd28284380ec8a5137432:35ba7cba0791d95ad4586120").replace('\n', '')
+        headder = {"Content-Type": "application/json", "Content-Length": str(len(mkdir_str)), "Authorization": 'Basic ' + user}
+        r = requests.post(mkdir_url, data=mkdir_str.encode('utf-8'), headers=headder)
+    return r.text
+
 
 
 @sockets.route('/echo')
