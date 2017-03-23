@@ -140,7 +140,7 @@ def wechat():
             print item
             sourceId = item.get('id')
             title = item.get('title')
-            pushInfo = pushInfo + '\n' + '<a href = "https://compaign.newsgrapeapp.com/news/' + sourceId + '">' + title + '</a>' + '&nbsp;&nbsp;&nbsp;' + \
+            pushInfo = pushInfo + '<\br>' + '<a href = "https://compaign.newsgrapeapp.com/news/' + sourceId + '">' + title + '</a>' + '&nbsp;&nbsp;&nbsp;' + \
             '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '">Push</a>'
             print sourceId + title
 
