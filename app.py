@@ -13,37 +13,44 @@ from views.todos import todos_view
 from flask import request
 import leancloud
 import requests
+import xml.dom.minidom
+import datetime
+import time
 
 #leancloud.init("96Q4GMOz0VpK4JwfeUjEHNWC-MdYXbMMI", "aCAfwt702pPeubx6tnngUWiu")
+
 
 
 app = Flask(__name__)
 sockets = Sockets(app)
 # 动态路由
 app.register_blueprint(todos_view, url_prefix='/todos')
+#微信公众号定义
+appSecret = 'ba8cfd77977f3f9a57eccaa1b00c7903'
+appId = 'wxe9b54103e44bd336'
 
 
-class AndroidId(leancloud.Object):
+class pushRecord(leancloud.Object):
     pass
 
 
 @app.route('/', methods=["GET", "POST"])
 def index():
     #POST方法判断
-    if request.method == "POST":
-        #请求内容类型判断
-        req = request
-        print '111'
-        if request.content_type == "application/json; charset=utf-8":
-            args = json.loads(request.get_data())
-        else:
-            args = request.form
-        #content_json = json.loads(args.get('json'))
-        content_json = json.loads('[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
-        for item in content_json:
-            print item
-            sourceId = args.get('sourceId')
-            title = args.get('title')
+    # if request.method == "POST":
+    #     #请求内容类型判断
+    #     req = request
+    #     print '111'
+    #     if request.content_type == "application/json; charset=utf-8":
+    #         args = json.loads(request.get_data())
+    #     else:
+    #         args = request.form
+    #     #content_json = json.loads(args.get('json'))
+    #     content_json = json.loads('[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
+    #     for item in content_json:
+    #         print item
+    #         sourceId = args.get('sourceId')
+    #         title = args.get('title')
 
 
         # if user_androidId != None:
@@ -81,9 +88,9 @@ def index():
         #         androidId.set('cn', countryName)
         #         androidId.set('clickInfo', clickInfo)
         #         androidId.save()
-        return "OK"
-    else:
-        return "不支持Get"
+    return "OK"
+    # else:
+    #     return "不支持Get"
 def PushTest():
     content_json = json.loads(
         '[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
@@ -95,23 +102,48 @@ def PushTest():
 
 
 @app.route('/time')
-def time():
+def timea():
     return str(datetime.now())
 
-@app.route('/wechatapi')
+
+@app.route('/wechatapi', methods=["GET", "POST"])
 def wechat():
     #请求内容类型判断
-    args = request.args
-    signature = args.get('signature')
-    timestamp = args.get('timestamp')
-    nonce = args.get('nonce')
-    echostr = args.get('echostr')
-    if echostr != None:
-        print echostr
-        return echostr
-    else:
-        print 'None'
-        return 'None'
+    if request.method == 'GET':
+        args = request.args
+        signature = args.get('signature')
+        timestamp = args.get('timestamp')
+        nonce = args.get('nonce')
+        echostr = args.get('echostr')
+        if echostr != None:
+            print echostr
+            return echostr
+        else:
+            print 'None'
+            return 'None'
+    elif request.method =='POST':
+        args = request.get_data()
+        doc = xml.dom.minidom.parseString(args)
+        doc = xml.dom.minidom.parseString(args)
+        ToUserName = doc.getElementsByTagName("ToUserName")[0].firstChild.data
+        FromUserName = doc.getElementsByTagName("FromUserName")[0].firstChild.data
+        print FromUserName
+        CreateTime = doc.getElementsByTagName("CreateTime")[0].firstChild.data
+        MsgType = doc.getElementsByTagName("MsgType")[0].firstChild.data
+        Content = doc.getElementsByTagName("Content")[0].firstChild.data
+        MsgId = doc.getElementsByTagName("MsgId")[0].firstChild.data
+        replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
+        str(time.mktime(datetime.datetime.now().timetuple())) + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
+        '< Content > <![CDATA[' + 'fuckyou man' + ']] > < / Content ></xml>'
+        if Content == 'Push':
+            return replyStr
+        else:
+            return "不支持的参数！"
+
+    #获取接入Token
+def getAccessToken():
+    r = requests.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appId + 'secret=' + appSecret)
+    return r.text
 
 
 @sockets.route('/echo')
