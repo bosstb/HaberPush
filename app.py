@@ -142,7 +142,6 @@ def wechat():
             title = item.get('title')
             pushInfo = pushInfo + '<br>' + '<a href = "https://compaign.newsgrapeapp.com/news/' + sourceId + '">' + title + '</a>' + '&nbsp;&nbsp;&nbsp;' + \
             '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '">Push</a>'
-            print sourceId + title
 
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
