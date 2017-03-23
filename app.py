@@ -133,8 +133,8 @@ def wechat():
         Content = doc.getElementsByTagName("Content")[0].firstChild.data
         MsgId = doc.getElementsByTagName("MsgId")[0].firstChild.data
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
-        str(time.mktime(datetime.datetime.now().timetuple())) + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
-        '< Content > <![CDATA[' + 'fuckyou man' + ']] > < / Content ></xml>'
+        str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
+        '<Content><![CDATA[' + 'fuckyou man' + ']]></Content></xml>'
         if Content == 'Push':
             return replyStr
         else:
