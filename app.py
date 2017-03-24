@@ -1,7 +1,7 @@
 # coding: utf-8
 #遗留问题：IP会变：54.193.59.55
 
-
+import os
 from datetime import datetime
 from datetime import timedelta
 import json
@@ -36,61 +36,9 @@ class pushRecord(leancloud.Object):
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    #POST方法判断
-    # if request.method == "POST":
-    #     #请求内容类型判断
-    #     req = request
-    #     print '111'
-    #     if request.content_type == "application/json; charset=utf-8":
-    #         args = json.loads(request.get_data())
-    #     else:
-    #         args = request.form
-    #     #content_json = json.loads(args.get('json'))
-    #     content_json = json.loads('[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
-    #     for item in content_json:
-    #         print item
-    #         sourceId = args.get('sourceId')
-    #         title = args.get('title')
-
-
-        # if user_androidId != None:
-        #     print user_androidId
-        #     query = leancloud.Query(AndroidId)
-        #     query.equal_to('ai', user_androidId)
-        #     query_list = query.find()
-        #     # 取国家
-        #     r = requests.post(
-        #         'http://api.db-ip.com/v2/c6f4413393e0ce3d120471ad41f7d7ad5bf77df0/' + str(ip))
-        #     country = json.loads(r.text)
-        #     if r.text.find('error') == -1:
-        #         if country["countryCode"] != 'ZZ':
-        #             countryName = country["countryName"]
-        #         else:
-        #             countryName = 'Unkown'
-        #     else:
-        #         countryName = 'Unkown'
-        #     if len(query_list) == 0:
-        #         #判断安卓Id是否存在
-        #         androidId.set('ai', user_androidId)
-        #         androidId.set('aa', aa)
-        #         androidId.set('mo', mo)
-        #         androidId.set('nt', nt)
-        #         androidId.set('oc', oc)
-        #         androidId.set('vn', vn)
-        #         androidId.set('lang', lang)
-        #         androidId.set('an', an)
-        #         androidId.set('IP', ip)
-        #         androidId.set('ua', ua)
-        #         androidId.set('on', on)
-        #         androidId.set('pkg', pkg)
-        #         androidId.set('me', me)
-        #         androidId.set('ms', ms)
-        #         androidId.set('cn', countryName)
-        #         androidId.set('clickInfo', clickInfo)
-        #         androidId.save()
     return "OK"
-    # else:
-    #     return "不支持Get"
+
+
 def PushTest():
     content_json = json.loads(
         '[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
@@ -132,9 +80,8 @@ def wechat():
         MsgType = doc.getElementsByTagName("MsgType")[0].firstChild.data
         Content = doc.getElementsByTagName("Content")[0].firstChild.data
         MsgId = doc.getElementsByTagName("MsgId")[0].firstChild.data
-        #r = requests.get('192.168.10.101:8801/v1/custompush/news')
-        content_json = json.loads(
-            '[{"id":"5QyqDq1HmU_","title":"İçişleri Bakanı Soylu: Terör örgütünün şehir yapılanması tamamen çökertildi"},{"id":"5Qyr4qSnOLI","title":"Kılıçdaroğlu: Kutuplaşma kaygı verici"},{"id":"5Qyy2Xt1wrD","title":"Amazon CEO’su dünyayı kurtarma provası yaptı"},{"id":"5QywT2J1raV","title":"İFF’den SABAH ve atv’ye teşekkür"},{"id":"5QyrNeOXzlg","title":"Garnizon komutanına FETÖ gözaltısı"}]')
+
+        content_json = json.loads(getPushContent())
         pushInfo = ''
         for item in content_json:
             print item
@@ -151,6 +98,36 @@ def wechat():
         else:
             return "不支持的参数！"
 
+
+def getPushToken():
+        r = requests.get(
+            'http://192.168.10.101:8801/auth/token?udid=123456&platform=WEB&pcid=123')
+        return r.text
+
+
+def getPushContent():
+    # 取Token:
+    BASE_DIR = os.path.dirname(__file__)  # 获取当前文件夹的父目录绝对路径
+    print BASE_DIR
+    file_path = os.path.join(BASE_DIR, 'static', 'token.txt')  # 获取C文件夹中的的Test_Data文件
+    f = open(file_path, 'r')
+    token = ''
+    token = f.read()
+    headers = {'Authorization': 'Bearer ' + token}
+    f.close
+    r = requests.get('http://192.168.10.101:8801/v1/custompush/news', headers=headers)
+    while r.text.find('"error":"Unauthorized"') > 0:
+        token = getPushToken()
+        f = open(file_path, 'w')
+        token = json.loads(token).get('accessToken')
+        f.write(token)
+        f.close()
+        headers = {'Authorization': 'Bearer ' + token}
+        r = requests.get('http://192.168.10.101:8801/v1/custompush/news', headers=headers)
+
+    return r.text
+
+
     #获取接入Token
 def getAccessToken():
     r = requests.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appId + 'secret=' + appSecret)
@@ -158,18 +135,17 @@ def getAccessToken():
 
 
 @app.route('/<sourceId>', methods=['POST', 'GET'])
-def videoDetail(sourceId):
-    title = request.args.__getattribute__('title')
+def push(sourceId):
+    title = request.args.get('title')
     if request.method == 'GET':
-        mkdir_str = '{"platform":"all","audience":"all","notification":{"alert":' + sourceId + ',' \
+        mkdir_str = '{"platform":"all","audience":{"registration_id":["191e35f7e0774e810b6","18171adc03001546edc","1517bfd3f7f546fa51a"]},"notification":{"alert":"' + str(title) + '",' \
                     '"android":{},"ios":{"extras":{ \
-                "newsid":' + title + '}}}}'
+                "news_id":"' + str(sourceId) + '"}}}}'
         mkdir_url = "https://api.jpush.cn/v3/push"
         user = base64.encodestring("789dd28284380ec8a5137432:35ba7cba0791d95ad4586120").replace('\n', '')
         headder = {"Content-Type": "application/json", "Content-Length": str(len(mkdir_str)), "Authorization": 'Basic ' + user}
         r = requests.post(mkdir_url, data=mkdir_str.encode('utf-8'), headers=headder)
     return r.text
-
 
 
 @sockets.route('/echo')
