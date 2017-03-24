@@ -20,7 +20,6 @@ import base64
 #leancloud.init("96Q4GMOz0VpK4JwfeUjEHNWC-MdYXbMMI", "aCAfwt702pPeubx6tnngUWiu")
 
 
-
 app = Flask(__name__)
 sockets = Sockets(app)
 # 动态路由
@@ -28,10 +27,14 @@ app.register_blueprint(todos_view, url_prefix='/todos')
 #微信公众号定义
 appSecret = 'ba8cfd77977f3f9a57eccaa1b00c7903'
 appId = 'wxe9b54103e44bd336'
+lastTitle = ''
 
 
 class pushRecord(leancloud.Object):
     pass
+
+
+
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -137,16 +140,19 @@ def getAccessToken():
 
 @app.route('/<sourceId>', methods=['POST', 'GET'])
 def push(sourceId):
+    global lastTitle
     title = request.args.get('title')
     content = request.args.get('content')
-    if request.method == 'GET':
+    if request.method == 'GET' and lastTitle != title:
         mkdir_str = '{"platform":"all","audience":"all","notification":{"alert":{"title":"' + title + '","body":"' + content + '"},"android":{},"ios":{"extras":{ \
                 "news_id":"' + sourceId + '"}}}}'
         mkdir_url = "https://api.jpush.cn/v3/push"
         user = base64.encodestring("789dd28284380ec8a5137432:35ba7cba0791d95ad4586120").replace('\n', '')
         headder = {"Content-Type": "application/json", "Content-Length": str(len(mkdir_str)), "Authorization": 'Basic ' + user}
         r = requests.post(mkdir_url, data=mkdir_str.encode('utf-8'), headers=headder)
+    lastTitle = title
     return r.text
+
 
 
 @sockets.route('/echo')
