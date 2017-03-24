@@ -87,8 +87,9 @@ def wechat():
             print item
             sourceId = item.get('id')
             title = item.get('title')
+            content = item.get('content')
             pushInfo = pushInfo + '<br>' + '<a href = "https://compaign.newsgrapeapp.com/news/' + sourceId + '">' + title + '</a>' + '&nbsp;&nbsp;&nbsp;' + \
-            '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '">Push</a>'
+            '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '&content=' + content + '">Push</a>'
 
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
@@ -101,7 +102,7 @@ def wechat():
 
 def getPushToken():
         r = requests.get(
-            'http://192.168.10.101:8801/auth/token?udid=123456&platform=WEB&pcid=123')
+            'https://api.newsgrapeapp.com/auth/token?udid=123456&platform=WEB&pcid=123')
         return r.text
 
 
@@ -115,7 +116,7 @@ def getPushContent():
     token = f.read()
     headers = {'Authorization': 'Bearer ' + token}
     f.close
-    r = requests.get('http://192.168.10.101:8801/v1/custompush/news', headers=headers)
+    r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
     while r.text.find('"error":"Unauthorized"') > 0:
         token = getPushToken()
         f = open(file_path, 'w')
@@ -123,7 +124,7 @@ def getPushContent():
         f.write(token)
         f.close()
         headers = {'Authorization': 'Bearer ' + token}
-        r = requests.get('http://192.168.10.101:8801/v1/custompush/news', headers=headers)
+        r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
 
     return r.text
 
@@ -137,10 +138,10 @@ def getAccessToken():
 @app.route('/<sourceId>', methods=['POST', 'GET'])
 def push(sourceId):
     title = request.args.get('title')
+    content = request.args.get('content')
     if request.method == 'GET':
-        mkdir_str = '{"platform":"all","audience":{"registration_id":["191e35f7e0774e810b6","18171adc03001546edc","1517bfd3f7f546fa51a"]},"notification":{"alert":"' + str(title) + '",' \
-                    '"android":{},"ios":{"extras":{ \
-                "news_id":"' + str(sourceId) + '"}}}}'
+        mkdir_str = '{"platform":"all","audience":{"registration_id":["191e35f7e0774e810b6","18171adc03001546edc","1517bfd3f7f546fa51a"]},"notification":{"alert":{"title":"' + title + '","body":"' + content + '"},"android":{},"ios":{"extras":{ \
+                "news_id":"' + sourceId + '"}}}}'
         mkdir_url = "https://api.jpush.cn/v3/push"
         user = base64.encodestring("789dd28284380ec8a5137432:35ba7cba0791d95ad4586120").replace('\n', '')
         headder = {"Content-Type": "application/json", "Content-Length": str(len(mkdir_str)), "Authorization": 'Basic ' + user}
