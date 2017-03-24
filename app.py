@@ -91,7 +91,7 @@ def wechat():
             sourceId = item.get('id')
             title = item.get('title')
             content = item.get('content')
-            pushInfo = pushInfo + '<br>' + '<a href = "https://compaign.newsgrapeapp.com/news/' + sourceId + '">' + title + '</a>' + '&nbsp;&nbsp;&nbsp;' + \
+            pushInfo = pushInfo + '===============================' + '<a href = "https://compaign.newsgrapeapp.com/news/' + sourceId + '">' + title + '</a>' + '+++++++' + \
             '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '&content=' + content + '">Push</a>'
 
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
@@ -120,6 +120,7 @@ def getPushContent():
     headers = {'Authorization': 'Bearer ' + token}
     f.close
     r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
+    print r.text
     while r.text.find('"error":"Unauthorized"') > 0:
         token = getPushToken()
         f = open(file_path, 'w')
