@@ -140,7 +140,7 @@ def push(sourceId):
     title = request.args.get('title')
     content = request.args.get('content')
     if request.method == 'GET':
-        mkdir_str = '{"platform":"all","audience":{"registration_id":["191e35f7e0774e810b6","18171adc03001546edc","1517bfd3f7f546fa51a"]},"notification":{"alert":{"title":"' + title + '","body":"' + content + '"},"android":{},"ios":{"extras":{ \
+        mkdir_str = '{"platform":"all","audience":"all","notification":{"alert":{"title":"' + title + '","body":"' + content + '"},"android":{},"ios":{"extras":{ \
                 "news_id":"' + sourceId + '"}}}}'
         mkdir_url = "https://api.jpush.cn/v3/push"
         user = base64.encodestring("789dd28284380ec8a5137432:35ba7cba0791d95ad4586120").replace('\n', '')
