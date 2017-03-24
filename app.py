@@ -120,7 +120,6 @@ def getPushContent():
     headers = {'Authorization': 'Bearer ' + token}
     f.close
     r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
-    print r.text
     while r.text.find('"error":"Unauthorized"') > 0:
         token = getPushToken()
         f = open(file_path, 'w')
