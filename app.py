@@ -87,7 +87,6 @@ def wechat():
         content_json = json.loads(getPushContent())
         pushInfo = ''
         for item in content_json:
-            print item
             sourceId = item.get('id')
             title = item.get('title')
             content = item.get('content')
@@ -98,6 +97,7 @@ def wechat():
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
         '<Content><![CDATA[' + pushInfo + ']]></Content></xml>'
         if Content == 'Push':
+            print replyStr
             return replyStr
         else:
             return "不支持的参数！"
