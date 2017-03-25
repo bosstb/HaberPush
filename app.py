@@ -97,8 +97,8 @@ def wechat():
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
         '<Content><![CDATA[' + pushInfo + ']]></Content></xml>'
         if Content == 'Push':
-            print replyStr
-            return replyStr
+            print replyStr.encode('utf-8')
+            return replyStr.encode('utf-8')
         else:
             return "不支持的参数！"
 
