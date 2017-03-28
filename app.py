@@ -88,8 +88,8 @@ def wechat():
         pushInfo = ''
         for item in content_json:
             sourceId = item.get('id')
-            title = str(item.get('title')).replace('"', '')
-            content = str(item.get('content')).replace('"', '')
+            title = item.get('title').replace('"', '')
+            content = item.get('content').replace('"', '')
             publishedTime = str(item.get('publishedTime')).replace('+0000', '').replace('T', ' ')
             pushInfo = pushInfo + '===============================' + '<a href = "https://compaign.newsgrapeapp.com/news/' + \
                        sourceId + '">' + title + '(' + publishedTime + ')</a>' + '+++++++' + \
