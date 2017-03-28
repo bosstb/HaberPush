@@ -87,8 +87,8 @@ def wechat():
         pushInfo = ''
         for item in content_json:
             sourceId = item.get('id')
-            title = item.get('title').replace('"', '')
-            content = item.get('content').replace('"', '')
+            title = item.get('title').replace('"', '').replace('\n', '')
+            content = item.get('content').replace('"', '').replace('\n', '')
             if msg == 'Push':
                 publishedTime = str(item.get('publishedTime')).replace('+0000', '').replace('T', ' ')
             else:
