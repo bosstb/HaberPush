@@ -81,27 +81,26 @@ def wechat():
         print FromUserName
         CreateTime = doc.getElementsByTagName("CreateTime")[0].firstChild.data
         MsgType = doc.getElementsByTagName("MsgType")[0].firstChild.data
-        Content = doc.getElementsByTagName("Content")[0].firstChild.data
+        msg = doc.getElementsByTagName("Content")[0].firstChild.data
         MsgId = doc.getElementsByTagName("MsgId")[0].firstChild.data
-
-        content_json = json.loads(getPushContent())
+        content_json = json.loads(getPushContent(msg))
         pushInfo = ''
         for item in content_json:
             sourceId = item.get('id')
             title = item.get('title').replace('"', '')
             content = item.get('content').replace('"', '')
-            publishedTime = str(item.get('publishedTime')).replace('+0000', '').replace('T', ' ')
+            if msg == 'Push':
+                publishedTime = str(item.get('publishedTime')).replace('+0000', '').replace('T', ' ')
+            else:
+                publishedTime = item.get('publishedTime')
             pushInfo = pushInfo + '===============================' + '<a href = "https://compaign.newsgrapeapp.com/news/' + \
                        sourceId + '">' + title + '(' + publishedTime + ')</a>' + '+++++++' + \
             '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '&content=' + content + '">Push</a>'
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
         '<Content><![CDATA[' + pushInfo + ']]></Content></xml>'
-        if Content == 'Push':
-            print replyStr.encode('utf-8')
-            return replyStr.encode('utf-8')
-        else:
-            return "不支持的参数！"
+        print replyStr.encode('utf-8')
+        return replyStr.encode('utf-8')
 
 
 def getPushToken():
@@ -110,7 +109,7 @@ def getPushToken():
         return r.text
 
 
-def getPushContent():
+def getPushContent(msg):
     # 取Token:
     BASE_DIR = os.path.dirname(__file__)  # 获取当前文件夹的父目录绝对路径
     print BASE_DIR
@@ -120,7 +119,10 @@ def getPushContent():
     token = f.read()
     headers = {'Authorization': 'Bearer ' + token}
     f.close
-    r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
+    if msg == 'Push':
+        r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
+    else:
+        r = requests.get('https://api.newsgrapeapp.com/v1/custompush/search?title=' + msg, headers=headers)
     while r.text.find('"error":"Unauthorized"') > 0:
         token = getPushToken()
         f = open(file_path, 'w')
