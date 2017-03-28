@@ -78,7 +78,7 @@ def wechat():
         doc = xml.dom.minidom.parseString(args)
         ToUserName = doc.getElementsByTagName("ToUserName")[0].firstChild.data
         FromUserName = doc.getElementsByTagName("FromUserName")[0].firstChild.data
-        print FromUserName
+        #print FromUserName
         CreateTime = doc.getElementsByTagName("CreateTime")[0].firstChild.data
         MsgType = doc.getElementsByTagName("MsgType")[0].firstChild.data
         msg = doc.getElementsByTagName("Content")[0].firstChild.data
@@ -112,7 +112,7 @@ def getPushToken():
 def getPushContent(msg):
     # 取Token:
     BASE_DIR = os.path.dirname(__file__)  # 获取当前文件夹的父目录绝对路径
-    print BASE_DIR
+    #print BASE_DIR
     file_path = os.path.join(BASE_DIR, 'static', 'token.txt')  # 获取C文件夹中的的Test_Data文件
     f = open(file_path, 'r')
     token = ''
