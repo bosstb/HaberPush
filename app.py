@@ -85,7 +85,9 @@ def wechat():
         MsgId = doc.getElementsByTagName("MsgId")[0].firstChild.data
         content_json = json.loads(getPushContent(msg))
         pushInfo = ''
+        count = 0
         for item in content_json:
+            count += 1
             sourceId = item.get('id')
             title = item.get('title').replace('"', '').replace('\n', '')
             content = item.get('content').replace('"', '').replace('\n', '')
@@ -96,6 +98,8 @@ def wechat():
             pushInfo = pushInfo + '===============================' + '<a href = "https://compaign.newsgrapeapp.com/news/' + \
                        sourceId + '">' + title + '(' + publishedTime + ')</a>' + '+++++++' + \
             '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '&content=' + content + '">Push</a>'
+            if count > 5:
+                break
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
         '<Content><![CDATA[' + pushInfo + ']]></Content></xml>'
