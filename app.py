@@ -95,8 +95,8 @@ def wechat():
                 publishedTime = str(item.get('publishedTime')).replace('+0000', '').replace('T', ' ')
             else:
                 publishedTime = item.get('publishedTime')
-            pushInfo = pushInfo + '===============================' + '<a href = "https://compaign.newsgrapeapp.com/news/' + \
-                       sourceId + '">' + title + '(' + publishedTime + ')</a>' + '+++++++' + \
+            pushInfo = pushInfo + '==' + '<a href = "https://compaign.newsgrapeapp.com/news/' + \
+                       sourceId + '">' + title + '(' + publishedTime + ')</a>' + '++' + \
             '<a href = "http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '&content=' + content + '">Push</a>'
             if count > 5:
                 break
