@@ -30,7 +30,7 @@ appId = 'wxe9b54103e44bd336'
 lastTitle = ''
 
 
-class pushRecord(leancloud.Object):
+class newsRecord(leancloud.Object):
     pass
 
 
@@ -91,15 +91,19 @@ def wechat():
             sourceId = item.get('id')
             title = item.get('title').replace('"', '').replace('\n', '')
             content = item.get('content').replace('"', '').replace('\n', '')
+            newsRecord.set('Id', sourceId)
+            newsRecord.set('title', title)
+            newsRecord.set('content', content)
+            newsRecord.save()
             if msg == 'Push':
                 publishedTime = str(item.get('publishedTime')).replace('+0000', '').replace('T', ' ')
             else:
                 publishedTime = item.get('publishedTime')
             pushInfo = pushInfo + '|||' + '<a href="https://compaign.newsgrapeapp.com/news/' + \
                        sourceId + '">' + title + '(' + publishedTime + ')</a>' + '|||' + \
-            '<a href="http://haberpush.leanapp.cn/' + sourceId + '?title=' + title + '&content=' + content + '">Push</a>'
-            if msg != 'Push' and count > 3:
-                break
+            '<a href="http://haberpush.leanapp.cn/' + sourceId + '">Push</a>'
+            # if msg != 'Push' and count > 3:
+            #     break
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
         '<Content><![CDATA[' + pushInfo + ']]></Content></xml>'
@@ -147,9 +151,12 @@ def getAccessToken():
 
 @app.route('/<sourceId>', methods=['POST', 'GET'])
 def push(sourceId):
+    query = leancloud.Query(newsRecord)
+    query.equal_to('Id', sourceId)
+    query_list = query.find()
+    title = query_list[0].get('title')
+    content = query_list[0].get('content')
     global lastTitle
-    title = request.args.get('title')
-    content = request.args.get('content')
     if request.method == 'GET' and lastTitle != title:
         mkdir_str = '{"platform":"all","audience":"all","notification":{"alert":{"title":"' + title + '","body":"' + content + '"},"android":{},"ios":{"extras":{ \
                 "news_id":"' + sourceId + '"}}}}'
