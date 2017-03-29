@@ -17,7 +17,7 @@ import xml.dom.minidom
 import datetime
 import time
 import base64
-#leancloud.init("96Q4GMOz0VpK4JwfeUjEHNWC-MdYXbMMI", "aCAfwt702pPeubx6tnngUWiu")
+#leancloud.init("fVBfU2NNnuRwhFLlrzIMy0ni-gzGzoHsz", "DXazg5nL3TfvtP3p3ad1zNVe")
 
 
 app = Flask(__name__)
@@ -30,7 +30,7 @@ appId = 'wxe9b54103e44bd336'
 lastTitle = ''
 
 
-class newsRecord(leancloud.Object):
+class NewsRecord(leancloud.Object):
     pass
 
 
@@ -91,6 +91,7 @@ def wechat():
             sourceId = item.get('id')
             title = item.get('title').replace('"', '').replace('\n', '')
             content = item.get('content').replace('"', '').replace('\n', '')
+            newsRecord = NewsRecord()
             newsRecord.set('Id', sourceId)
             newsRecord.set('title', title)
             newsRecord.set('content', content)
@@ -151,7 +152,7 @@ def getAccessToken():
 
 @app.route('/<sourceId>', methods=['POST', 'GET'])
 def push(sourceId):
-    query = leancloud.Query(newsRecord)
+    query = leancloud.Query(NewsRecord)
     query.equal_to('Id', sourceId)
     query_list = query.find()
     title = query_list[0].get('title')
