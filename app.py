@@ -17,7 +17,7 @@ import xml.dom.minidom
 import datetime
 import time
 import base64
-#leancloud.init("fVBfU2NNnuRwhFLlrzIMy0ni-gzGzoHsz", "DXazg5nL3TfvtP3p3ad1zNVe")
+leancloud.init("fVBfU2NNnuRwhFLlrzIMy0ni-gzGzoHsz", "DXazg5nL3TfvtP3p3ad1zNVe")
 
 
 app = Flask(__name__)
@@ -100,11 +100,16 @@ def wechat():
                 publishedTime = str(item.get('publishedTime')).replace('+0000', '').replace('T', ' ')
             else:
                 publishedTime = item.get('publishedTime')
-            pushInfo = pushInfo + '|||' + '<a href="https://compaign.newsgrapeapp.com/news/' + \
-                       sourceId + '">' + title + '(' + publishedTime + ')</a>' + '|||' + \
-            '<a href="http://haberpush.leanapp.cn/' + sourceId + '">Push</a>'
+
+            if msg.find('topic') > 0:
+                pushInfo = pushInfo + '|||' + '<a href="https://compaign.newsgrapeapp.com/news/' + \
+                           sourceId + '">' + title + '(' + publishedTime + ')</a>' + '|||' + \
+                '<a href="http://haberpush.leanapp.cn/' + sourceId + '">Push</a>'
+            else:
+                pushInfo =  pushInfo + '|||' + 'TITLE:' + title + '|||' + content + 'CONTENT:'
             # if msg != 'Push' and count > 3:
             #     break
+
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
         '<Content><![CDATA[' + pushInfo + ']]></Content></xml>'
@@ -130,6 +135,8 @@ def getPushContent(msg):
     f.close
     if msg == 'Push':
         r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
+    elif str(msg).find('topic') > 0:
+        r = requests.post('https://api.newsgrapeapp.com/v1/topic/news?topicId=' + str(msg).split(':')[1], headers=headers)
     else:
         r = requests.get('https://api.newsgrapeapp.com/v1/custompush/search?title=' + msg, headers=headers)
     while r.text.find('"error":"Unauthorized"') > 0:
