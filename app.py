@@ -101,7 +101,7 @@ def wechat():
             else:
                 publishedTime = item.get('publishedTime')
 
-            if str(msg).find('topic') >= 0:
+            if msg.find('topic') >= 0:
                 pushInfo = pushInfo + '|||' + 'TITLE:' + title + '|||' + content + 'CONTENT:'
             else:
                 pushInfo = pushInfo + '|||' + '<a href="https://compaign.newsgrapeapp.com/news/' + \
@@ -135,7 +135,7 @@ def getPushContent(msg):
     f.close
     if msg == 'Push':
         r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
-    elif str(msg).find('topic') >= 0:
+    elif msg.find('topic') >= 0:
         r = requests.post('https://api.newsgrapeapp.com/v1/topic/news?topicId=' + str(msg).split(':')[1], headers=headers)
     else:
         r = requests.get('https://api.newsgrapeapp.com/v1/custompush/search?title=' + msg, headers=headers)
