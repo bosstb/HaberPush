@@ -101,14 +101,14 @@ def wechat():
             else:
                 publishedTime = item.get('publishedTime')
 
-            if msg.find('topic') > 0:
+            if str(msg).find('topic') > 0:
+                pushInfo = pushInfo + '|||' + 'TITLE:' + title + '|||' + content + 'CONTENT:'
+            else:
                 pushInfo = pushInfo + '|||' + '<a href="https://compaign.newsgrapeapp.com/news/' + \
                            sourceId + '">' + title + '(' + publishedTime + ')</a>' + '|||' + \
                 '<a href="http://haberpush.leanapp.cn/' + sourceId + '">Push</a>'
-            else:
-                pushInfo =  pushInfo + '|||' + 'TITLE:' + title + '|||' + content + 'CONTENT:'
-            # if msg != 'Push' and count > 3:
-            #     break
+                if msg != 'Push' and count > 5:
+                    break
 
         replyStr = '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
         str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
