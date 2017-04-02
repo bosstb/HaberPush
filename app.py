@@ -135,11 +135,12 @@ def getPushContent(msg):
     f.close
     if msg == 'Push':
         r = requests.get('https://api.newsgrapeapp.com/v1/custompush/news', headers=headers)
-    elif msg.find('topic:') >= 0:
-        r = requests.post('https://api.newsgrapeapp.com/v1/topic/news?topicId=' + str(msg).split(':')[1], headers=headers)
-    elif msg.find('user:') >= 0:
-        r = requests.get('https://api.newsgrapeapp.com/v1/custompush/usergroupnews?id=' + str(msg).split(':')[1] + 'score=' + str(msg).split(':')[2],
+    elif msg.find('topic,') >= 0:
+        r = requests.post('https://api.newsgrapeapp.com/v1/topic/news?topicId=' + str(msg).split(',')[1], headers=headers)
+    elif msg.find('user,') >= 0:
+        r = requests.get('https://api.newsgrapeapp.com/v1/custompush/usergroupnews?id=' + str(msg).split(',')[1] + '&score=' + str(msg).split(',')[2],
                           headers=headers)
+        print 'https://api.newsgrapeapp.com/v1/custompush/usergroupnews?id=' + str(msg).split(',')[1] + 'score=' + str(msg).split(',')[2]
     else:
         r = requests.get('https://api.newsgrapeapp.com/v1/custompush/search?title=' + msg, headers=headers)
     while r.text.find('"error":"Unauthorized"') >= 0:
