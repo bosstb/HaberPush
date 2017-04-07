@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 from datetime import timedelta
 import json
+import youtube_dl
 from flask import Flask,redirect
 from flask import render_template
 from flask_sockets import Sockets
@@ -106,7 +107,7 @@ def wechat():
             else:
                 pushInfo = pushInfo + '|||' + '<a href="https://compaign.newsgrapeapp.com/news/' + \
                            sourceId + '">' + title + '(' + publishedTime + ')</a>' + '|||' + \
-                '<a href="http://haberpush.leanapp.cn/' + sourceId + '">Push</a>'
+                '<a href="http://haberpush.leanapp.cn/wechatapi/' + sourceId + '">Push</a>'
                 if msg != 'Push' and count > 5:
                     break
 
@@ -161,7 +162,7 @@ def getAccessToken():
     return r.text
 
 
-@app.route('/<sourceId>', methods=['POST', 'GET'])
+@app.route('/wechatapi/<sourceId>', methods=['POST', 'GET'])
 def push(sourceId):
     query = leancloud.Query(NewsRecord)
     query.equal_to('Id', sourceId)
@@ -170,7 +171,7 @@ def push(sourceId):
     content = query_list[0].get('content')
     global lastTitle
     if request.method == 'GET' and lastTitle != title:
-        mkdir_str = '{"platform":"all","audience":"all","notification":{"alert":{"title":"' + title + '","body":"' + content + '"},"android":{},"ios":{"extras":{ \
+        mkdir_str = '{"platform":"all","audience":"all","notification":{"alert":{"title":"' + title + '","body":"' + title + '"},"android":{},"ios":{"extras":{ \
                 "news_id":"' + sourceId + '"}}}}'
         mkdir_url = "https://api.jpush.cn/v3/push"
         user = base64.encodestring("789dd28284380ec8a5137432:35ba7cba0791d95ad4586120").replace('\n', '')
@@ -178,6 +179,46 @@ def push(sourceId):
         r = requests.post(mkdir_url, data=mkdir_str.encode('utf-8'), headers=headder)
     lastTitle = title
     return r.text
+
+
+@app.route('/getPlayURL')
+def getPlayURL():
+    args = request.args
+    url = args.get("url")
+    # format_url = args.get("format")
+    if url == None:
+        return "url missing"
+    # if format_url == None:
+    ydl_opts_getInfo = {'listformats': True, "simulate": True}
+    # else:
+    #     ydl_opts_getInfo = {'forceurl': True, 'format': format_url, "simulate": True}
+    with youtube_dl.YoutubeDL(ydl_opts_getInfo) as ydl:
+        return_msg = []
+        message = ydl.download([str(url)])
+        # if format_url == None:
+        formats = message.get('formats', [message])
+        for formatItem in formats:
+            if formatItem.get('ext') in ('webm', 'mp4', 'mp3', '3gp', 'm4a', 'ogg'):
+                fileSize = formatItem.get('filesize')
+                if fileSize == None:
+                    fileSize = ""
+                duration = message.get('duration')
+                if duration == None:
+                    duration = ""
+                thumbnail = message.get('thumbnail')
+                if thumbnail == None:
+                    thumbnail = ""
+                dict = {'id': message.get('id'), 'duration': duration, 'format': formatItem.get('format'),
+                        'title': message.get('title'),
+                        'ext': formatItem.get('ext'), 'filesize': fileSize, 'thumbnail': thumbnail,
+                        'url': formatItem.get('url')}
+                return_msg.append(dict)
+        return json.dumps(return_msg)
+
+
+
+
+
 
 
 
