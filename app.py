@@ -198,7 +198,9 @@ def getPlayURL():
         # if format_url == None:
         formats = message.get('formats', [message])
         for formatItem in formats:
-            if formatItem.get('ext') in ('webm', 'mp4', 'mp3', '3gp', 'm4a', 'ogg'):
+            playformat = formatItem.get('format')
+            ext = formatItem.get('ext')
+            if ext == 'mp4':
                 fileSize = formatItem.get('filesize')
                 if fileSize == None:
                     fileSize = ""
@@ -208,12 +210,16 @@ def getPlayURL():
                 thumbnail = message.get('thumbnail')
                 if thumbnail == None:
                     thumbnail = ""
-                dict = {'id': message.get('id'), 'duration': duration, 'format': formatItem.get('format'),
+                dict = {'id': message.get('id'), 'duration': duration, 'format': playformat,
                         'title': message.get('title'),
-                        'ext': formatItem.get('ext'), 'filesize': fileSize, 'thumbnail': thumbnail,
+                        'ext': ext, 'filesize': fileSize, 'thumbnail': thumbnail,
                         'url': formatItem.get('url')}
                 return_msg.append(dict)
-        return json.dumps(return_msg)
+    if len(return_msg) >= 2:
+        return json.dumps(return_msg[2])
+    else:
+        return json.dumps(return_msg[0])
+
 
 
 
