@@ -92,7 +92,9 @@ def wechat():
             todo.set('rightOption', msg.split(',')[1])
             todo.set('leftOption', msg.split(',')[0].replace('RLU:', ''))
             todo.save()
-            return 'OK'
+            return '<xml><ToUserName>' + FromUserName + '</ToUserName>' + '<FromUserName>' + ToUserName + '</FromUserName>' + '<CreateTime>' + \
+        str(time.mktime(datetime.datetime.now().timetuple())).split('.')[0] + '</CreateTime>' + '<MsgType><![CDATA[text]]></MsgType>' + \
+        '<Content><![CDATA[OKOK]]></Content></xml>'
         content_json = json.loads(getPushContent(msg))
         pushInfo = ''
         count = 0
