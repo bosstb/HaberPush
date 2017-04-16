@@ -35,7 +35,8 @@ class NewsRecord(leancloud.Object):
     pass
 
 
-
+class RealtimeScore(leancloud.Object):
+    pass
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -84,6 +85,13 @@ def wechat():
         MsgType = doc.getElementsByTagName("MsgType")[0].firstChild.data
         msg = doc.getElementsByTagName("Content")[0].firstChild.data
         MsgId = doc.getElementsByTagName("MsgId")[0].firstChild.data
+        if msg.find('RLU:') >= 0:
+            Todo = leancloud.Object.extend('RealtimeScore')
+            todo = Todo.create_without_data('58ef1b27827459005245ade6')
+            # 这里修改 location 的值
+            todo.set('rightOption', msg.split(',')[1])
+            todo.set('leftOption', msg.split(',')[0].replace('RLU:', ''))
+            todo.save()
         content_json = json.loads(getPushContent(msg))
         pushInfo = ''
         count = 0
