@@ -18,7 +18,7 @@ import xml.dom.minidom
 import datetime
 import time
 import base64
-leancloud.init("fVBfU2NNnuRwhFLlrzIMy0ni-gzGzoHsz", "DXazg5nL3TfvtP3p3ad1zNVe")
+# leancloud.init("fVBfU2NNnuRwhFLlrzIMy0ni-gzGzoHsz", "DXazg5nL3TfvtP3p3ad1zNVe")
 
 
 app = Flask(__name__)
