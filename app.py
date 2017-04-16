@@ -92,6 +92,7 @@ def wechat():
             todo.set('rightOption', msg.split(',')[1])
             todo.set('leftOption', msg.split(',')[0].replace('RLU:', ''))
             todo.save()
+            return 'OK'
         content_json = json.loads(getPushContent(msg))
         pushInfo = ''
         count = 0
