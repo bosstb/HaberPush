@@ -216,7 +216,7 @@ def getPlayURL():
                         'url': formatItem.get('url')}
                 return_msg.append(dict)
     if len(return_msg) >= 2:
-        return json.dumps(return_msg[2])
+        return json.dumps(return_msg)
     else:
         return json.dumps(return_msg[0])
 
